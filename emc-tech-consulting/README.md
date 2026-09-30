@@ -27,3 +27,9 @@ python -m http.server 8000
 ```
 
 Abra `http://localhost:8000/` nesta pasta.
+
+## Testes E2E
+
+[GitHub Actions](https://github.com/emcordioli/lab/actions/workflows/emc-e2e.yml): diariamente às 8h15 (Brasília), manualmente ou quando os testes mudam. Playwright verifica EC2 e GPT Sites em desktop/celular: HTTP 200, título, logo, foto, layout e abertura dos quatro CTAs sem enviar mensagens. Valida a navegação inicial; não testa login nem disponibilidade dos serviços externos.
+
+O IP da EC2 é consultado na AWS em cada execução. EC2 usa HTTP enquanto o HTTPS do domínio está pendente; GPT Sites usa HTTPS. Relatórios e evidências ficam nos artifacts por 14 dias. Agendamentos do GitHub podem atrasar.
