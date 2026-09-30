@@ -1,0 +1,61 @@
+name: Daily EMC E2E
+on:
+  schedule:
+    - cron: '15 8 * * *'
+      timezone: America/Sao_Paulo
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'tests/emc/**'
+      - '.github/workflows/emc-e2e.yml'
+permissions:
+  contents: read
+  id-token: write
+concurrency:
+  group: emc-e2e-daily
+  cancel-in-progress: false
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: tests/emc
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install test dependencies
+        run: |
+          npm install --ignore-scripts --no-audit --no-fund
+          npx playwright install --with-deps chromium
+      - name: Authenticate to AWS
+        uses: aws-actions/configure-aws-credentials@v6.3.0
+        with:
+          role-to-assume: arn:aws:iam::567860371854:role/emc-github-deploy
+          aws-region: us-east-1
+      - name: Discover running EC2 address
+        run: |
+          set -euo pipefail
+          INFO=$(aws ec2 describe-instances --instance-ids i-0209ef463be367c5d --query 'Reservations[0].Instances[0].{State:State.Name,IP:PublicIpAddress}')
+          STATE=$(echo "$INFO" | jq -r .State)
+          IP=$(echo "$INFO" | jq -r .IP)
+          [ "$STATE" = running ] || { echo "EC2 is $STATE instead of running"; exit 1; }
+          [ "$IP" != null ] || { echo "EC2 has no public IP"; exit 1; }
+          # HTTP until domain HTTPS is configured; current IP certificate cannot
+          # survive an IP change. GPT Sites is always tested with HTTPS.
+          echo "EC2_URL=http://$IP/" >> "$GITHUB_ENV"
+      - name: Run desktop and mobile E2E
+        run: npm test
+      - name: Save report and failure evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: emc-e2e-report
+          path: |
+            tests/emc/playwright-report/
+            tests/emc/test-results/
+          retention-days: 14
+          if-no-files-found: ignore
