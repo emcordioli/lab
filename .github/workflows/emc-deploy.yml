@@ -1,0 +1,61 @@
+name: Publish EMC website
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'emc-tech-consulting/**'
+      - '.github/workflows/emc-deploy.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  id-token: write
+concurrency:
+  group: emc-website-production
+  cancel-in-progress: false
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Validate HTML and images
+        env:
+          COMMIT: ${{ github.sha }}
+        run: |
+          python3 - <<'PY'
+          import os, urllib.request
+          from html.parser import HTMLParser
+          url = f"https://raw.githubusercontent.com/emcordioli/lab/{os.environ['COMMIT']}/emc-tech-consulting/index.html"
+          html = urllib.request.urlopen(url).read().decode('utf-8')
+          assert '<html' in html.lower() and '</html>' in html.lower(), 'Incomplete HTML'
+          class Images(HTMLParser):
+              def handle_starttag(self, tag, attrs):
+                  if tag == 'img':
+                      src = dict(attrs).get('src', '')
+                      assert src, 'Image without source'
+                      if not src.startswith('data:'):
+                          urllib.request.urlopen(urllib.parse.urljoin(url, src)).close()
+          Images().feed(html)
+          print('HTML and image sources validated')
+          PY
+      - name: Authenticate to AWS using OIDC
+        uses: aws-actions/configure-aws-credentials@v6.3.0
+        with:
+          role-to-assume: arn:aws:iam::567860371854:role/emc-github-deploy
+          aws-region: us-east-1
+      - name: Publish exact commit to EC2
+        env:
+          COMMIT: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          INSTANCE=i-0209ef463be367c5d
+          STATE=$(aws ec2 describe-instances --instance-ids "$INSTANCE" --query 'Reservations[0].Instances[0].State.Name' --output text)
+          if [ "$STATE" != running ]; then
+            echo "EC2 is $STATE. Publication deferred until startup." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          COMMAND=$(aws ssm send-command --instance-ids "$INSTANCE" --document-name EMC-DeployWebsite --parameters "Commit=$COMMIT" --query Command.CommandId --output text)
+          aws ssm wait command-executed --command-id "$COMMAND" --instance-id "$INSTANCE" || {
+            aws ssm get-command-invocation --command-id "$COMMAND" --instance-id "$INSTANCE"
+            exit 1
+          }
+          echo "Published commit $COMMIT to EC2." >> "$GITHUB_STEP_SUMMARY"
