@@ -1,29 +1,29 @@
 # EMC Tech Consulting
 
-Site de Emanuel Cordioli para consultoria estratégica em produto, tecnologia e eficiência com IA.
+Site de Emanuel Cordioli para consultoria estratégica em produto e tecnologia.
 
-Site publicado: https://emanuel-cordioli-emc.emcordioli.chatgpt.site/
+## Site
 
-## Conteúdo
+- [GPT Sites](https://emanuel-cordioli-emc.emcordioli.chatgpt.site/)
+- [EC2 com HTTPS](https://34.229.141.156/) — IP pode mudar ao reiniciar.
+- `emcordioli.com.br` e `www`: DNS configurado na Cloudflare; propagação, certificado do domínio e atualização automática do IP pendentes.
 
-- Apresentação da consultoria e serviços.
-- Mini-CV com experiências na Neoway, Softplan, O2OBOTS e InstaCasa.
-- Contato direto pelo WhatsApp e LinkedIn.
-- Identidade da EMC Tech Consulting e tipografia Montserrat.
+## Código e publicação
 
-## Executar localmente
+`index.html` reúne conteúdo, CSS e imagens incorporadas, incluindo foto de perfil e logos. Montserrat via Google Fonts. Sem build ou dependências.
 
-O site é estático e não exige instalação de dependências. Sirva esta pasta com qualquer servidor HTTP, por exemplo:
+Edite o arquivo e faça commit/push para `main`. O workflow [emc-deploy.yml](../.github/workflows/emc-deploy.yml) valida o HTML e as imagens e publica na EC2 via OIDC e SSM, sem chaves AWS no GitHub. Se desligada, a EC2 sincroniza a versão mais recente ao iniciar. GPT Sites exige publicação separada.
+
+## Infraestrutura
+
+- EC2 `t3.micro`, região `us-east-1`, Free Plan.
+- Nginx e certificado Let's Encrypt para o IP, com renovação automática.
+- Desliga às 20h e liga às 8h diariamente, horário de Brasília.
+
+## Preview local
 
 ```sh
 python -m http.server 8000
 ```
 
-Abra http://localhost:8000/ no navegador.
-
-## Arquivos
-
-- `index.html`: conteúdo e estilos responsivos.
-O logotipo está incorporado no HTML para manter o site em um único arquivo.
-
-Para atualizar, edite `index.html`. A fonte Montserrat é carregada via Google Fonts.
+Abra `http://localhost:8000/` nesta pasta.
