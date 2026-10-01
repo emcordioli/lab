@@ -1,15 +1,16 @@
 const { test, expect } = require('@playwright/test');
 
 const targets = [
-  ['EC2', process.env.EC2_URL],
+  ['emcordioli.com.br', process.env.SITE_URL || 'https://emcordioli.com.br/'],
   ['GPT Sites', 'https://emanuel-cordioli-emc.emcordioli.chatgpt.site/'],
 ];
 for (const [name, baseURL] of targets) {
   test.describe(name, () => {
     test.beforeEach(async ({ page }) => {
-      expect(baseURL, 'EC2_URL must be set').toBeTruthy();
+      expect(baseURL, 'Site URL must be set').toBeTruthy();
       const response = await page.goto(baseURL, { waitUntil: 'domcontentloaded' });
       expect(response.status()).toBe(200);
+      expect(new URL(page.url()).origin).toBe(new URL(baseURL).origin);
     });
 
     test('site, logo and profile photo are available', async ({ page }) => {
