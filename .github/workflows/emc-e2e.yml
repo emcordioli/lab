@@ -11,7 +11,6 @@ on:
       - '.github/workflows/emc-e2e.yml'
 permissions:
   contents: read
-  id-token: write
 concurrency:
   group: emc-e2e-daily
   cancel-in-progress: false
@@ -19,6 +18,8 @@ jobs:
   e2e:
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    env:
+      SITE_URL: https://emcordioli.com.br/
     defaults:
       run:
         working-directory: tests/emc
@@ -31,20 +32,6 @@ jobs:
         run: |
           npm install --ignore-scripts --no-audit --no-fund
           npx playwright install --with-deps chromium
-      - name: Authenticate to AWS
-        uses: aws-actions/configure-aws-credentials@v6.3.0
-        with:
-          role-to-assume: arn:aws:iam::567860371854:role/emc-github-deploy
-          aws-region: us-east-1
-      - name: Discover running EC2 address
-        run: |
-          set -euo pipefail
-          INFO=$(aws ec2 describe-instances --instance-ids i-0209ef463be367c5d --query 'Reservations[0].Instances[0].{State:State.Name,IP:PublicIpAddress}')
-          STATE=$(echo "$INFO" | jq -r .State)
-          IP=$(echo "$INFO" | jq -r .IP)
-          [ "$STATE" = running ] || { echo "EC2 is $STATE instead of running"; exit 1; }
-          [ "$IP" != null ] || { echo "EC2 has no public IP"; exit 1; }
-          echo "EC2_URL=https://emcordioli.com.br/" >> "$GITHUB_ENV"
       - name: Run desktop and mobile E2E
         run: npm test
       - name: Save report and failure evidence
