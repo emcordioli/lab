@@ -6,7 +6,7 @@ Site de Emanuel Cordioli para consultoria estratégica em produto e tecnologia.
 
 - [GPT Sites](https://emanuel-cordioli-emc.emcordioli.chatgpt.site/)
 - [Domínio na EC2](https://emcordioli.com.br/) — HTTPS válido; `www` redireciona ao domínio principal.
-- DNS na Cloudflare. Atualização automática do IP ainda pendente; revisar o registro A após parar/iniciar a EC2.
+- DNS na Cloudflare. IP atualizado automaticamente ao iniciar e a cada 5 minutos. Token criptografado no AWS Parameter Store, restrito a este domínio.
 
 ## Código e publicação
 
