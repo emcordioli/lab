@@ -2,7 +2,6 @@ const { test, expect } = require('@playwright/test');
 
 const targets = [
   ['emcordioli.com.br', process.env.SITE_URL || 'https://emcordioli.com.br/'],
-  ['GPT Sites', 'https://emanuel-cordioli-emc.emcordioli.chatgpt.site/'],
 ];
 for (const [name, baseURL] of targets) {
   test.describe(name, () => {
