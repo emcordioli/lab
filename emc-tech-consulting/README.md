@@ -32,4 +32,4 @@ Abra `http://localhost:8000/` nesta pasta.
 
 [GitHub Actions](https://github.com/emcordioli/lab/actions/workflows/emc-e2e.yml): diariamente às 8h15 (Brasília), manualmente ou quando os testes mudam. Playwright verifica EC2 e GPT Sites em desktop/celular: HTTP 200, título, logo, foto, layout e abertura dos quatro CTAs sem enviar mensagens. Valida a navegação inicial; não testa login nem disponibilidade dos serviços externos.
 
-O IP da EC2 é consultado na AWS em cada execução. EC2 e GPT Sites são testados por HTTPS; o domínio também valida o apontamento DNS. Relatórios e evidências ficam nos artifacts por 14 dias. Agendamentos do GitHub podem atrasar.
+Os testes acessam diretamente `https://emcordioli.com.br/`, sem consultar IP nem usar credenciais AWS. EC2 e GPT Sites são testados por HTTPS; o domínio também valida o apontamento DNS. Relatórios e evidências ficam nos artifacts por 14 dias. Agendamentos do GitHub podem atrasar.
