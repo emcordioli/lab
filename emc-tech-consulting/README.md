@@ -5,8 +5,8 @@ Site de Emanuel Cordioli para consultoria estratégica em produto e tecnologia.
 ## Site
 
 - [GPT Sites](https://emanuel-cordioli-emc.emcordioli.chatgpt.site/)
-- [EC2 com HTTPS](https://34.229.141.156/) — IP pode mudar ao reiniciar.
-- `emcordioli.com.br` e `www`: DNS configurado na Cloudflare; propagação, certificado do domínio e atualização automática do IP pendentes.
+- [Domínio na EC2](https://emcordioli.com.br/) — HTTPS válido; `www` redireciona ao domínio principal.
+- DNS na Cloudflare. Atualização automática do IP ainda pendente; revisar o registro A após parar/iniciar a EC2.
 
 ## Código e publicação
 
@@ -17,7 +17,7 @@ Edite o arquivo e faça commit/push para `main`. O workflow [emc-deploy.yml](../
 ## Infraestrutura
 
 - EC2 `t3.micro`, região `us-east-1`, Free Plan.
-- Nginx e certificado Let's Encrypt para o IP, com renovação automática.
+- Nginx e certificado Let's Encrypt para o domínio, com renovação automática.
 - Desliga às 20h e liga às 8h diariamente, horário de Brasília.
 
 ## Preview local
@@ -32,4 +32,4 @@ Abra `http://localhost:8000/` nesta pasta.
 
 [GitHub Actions](https://github.com/emcordioli/lab/actions/workflows/emc-e2e.yml): diariamente às 8h15 (Brasília), manualmente ou quando os testes mudam. Playwright verifica EC2 e GPT Sites em desktop/celular: HTTP 200, título, logo, foto, layout e abertura dos quatro CTAs sem enviar mensagens. Valida a navegação inicial; não testa login nem disponibilidade dos serviços externos.
 
-O IP da EC2 é consultado na AWS em cada execução. EC2 usa HTTP enquanto o HTTPS do domínio está pendente; GPT Sites usa HTTPS. Relatórios e evidências ficam nos artifacts por 14 dias. Agendamentos do GitHub podem atrasar.
+O IP da EC2 é consultado na AWS em cada execução. EC2 e GPT Sites são testados por HTTPS; o domínio também valida o apontamento DNS. Relatórios e evidências ficam nos artifacts por 14 dias. Agendamentos do GitHub podem atrasar.
