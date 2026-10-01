@@ -44,9 +44,7 @@ jobs:
           IP=$(echo "$INFO" | jq -r .IP)
           [ "$STATE" = running ] || { echo "EC2 is $STATE instead of running"; exit 1; }
           [ "$IP" != null ] || { echo "EC2 has no public IP"; exit 1; }
-          # HTTP until domain HTTPS is configured; current IP certificate cannot
-          # survive an IP change. GPT Sites is always tested with HTTPS.
-          echo "EC2_URL=http://$IP/" >> "$GITHUB_ENV"
+          echo "EC2_URL=https://emcordioli.com.br/" >> "$GITHUB_ENV"
       - name: Run desktop and mobile E2E
         run: npm test
       - name: Save report and failure evidence
