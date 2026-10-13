@@ -13,7 +13,7 @@ for (const [name, baseURL] of targets) {
     });
 
     test('site, logo and profile photo are available', async ({ page }) => {
-      await expect(page).toHaveTitle(/Emanuel Cordioli.*EMC Tech Consulting/);
+      await expect(page).toHaveTitle(/Emanuel Cordioli.*EMC Technology/);
       await expect(page.locator('h1')).toBeVisible();
       for (const selector of ['.brand-logo', '.profile-photo']) {
         const image = page.locator(selector);
