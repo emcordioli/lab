@@ -15,6 +15,10 @@ for (const [name, baseURL] of targets) {
     test('site, logo and profile photo are available', async ({ page }) => {
       await expect(page).toHaveTitle(/Emanuel Cordioli.*EMC Technology/);
       await expect(page.locator('h1')).toBeVisible();
+      await expect(page.locator('footer')).toContainText('EMC Technology');
+      await expect(page.locator('.brand-logo')).toHaveAttribute('alt', /EMC Technology/);
+      // Guard the entire HTML, including metadata, alt text and links.
+      expect(await page.content()).not.toMatch(/emc[\s_-]*tech[\s_-]*consult(?:ing|oing)?/i);
       for (const selector of ['.brand-logo', '.profile-photo']) {
         const image = page.locator(selector);
         await expect(image).toBeVisible();
